@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Movies</title>
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+  </head>
+  <body class="bg-secondary text-white">
+    <nav class="navbar navbar-expand-lg navbar-light bg-dark">
+      <a class="navbar-brand text-white" href="#">Movie Website</a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#navbarNav"
+        aria-controls="navbarNav"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item active">
+            <a class="nav-link text-white" href="#">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white" href="#">Movies</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white" href="#">About Us</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    <div class="container text-start">
+      <div class="btn-group my-4" role="group">
+        <button type="button" class="btn btn-dark" onclick="displayTop250TVs()">
+          Top 250 TV Shows
+        </button>
+        <button
+          type="button"
+          class="btn btn-dark"
+          onclick="displayComingSoon()"
+        >
+          Coming Soon
+        </button>
+      </div>
+    </div>
+
+    <div class="container">
+      <form class="form-inline justify-content-start py-10">
+        <div class="input-group">
+          <input
+            type="text"
+            class="form-control"
+            id="searchInput"
+            placeholder="Search a movie"
+          />
+          <div class="input-group-append">
+            <button type="button" class="btn btn-light" onclick="search()">
+              Search
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div class="container">
+      <div id="output" class="row"></div>
+    </div>
+
+    <script>
+      function createCard(title, image, description) {
+        const card = document.createElement("div");
+        card.className = "col-sm-6 col-md-4 col-lg-3 mb-4";
+
+        const imgWrapper = document.createElement("div");
+        imgWrapper.className = "card-img-wrapper";
+        card.appendChild(imgWrapper);
+
+        const img = document.createElement("img");
+        img.src = image;
+        img.alt = title;
+        img.className = "card-img-top";
+        imgWrapper.appendChild(img);
+
+        const cardBody = document.createElement("div");
+        cardBody.className = "card-body";
+        card.appendChild(cardBody);
+
+        const h4 = document.createElement("h4");
+        h4.className = "card-title";
+        h4.textContent = title;
+        cardBody.appendChild(h4);
+
+        const p = document.createElement("p");
+        p.className = "card-text";
+        p.textContent = description;
+        cardBody.appendChild(p);
+
+        const addButton = document.createElement("button");
+        addButton.className = "btn btn-dark";
+        addButton.textContent = "Watch Now";
+        addButton.addEventListener("click", function () {
+          console.log("Added", title, "to My List");
+        });
+        cardBody.appendChild(addButton);
+
+        return card;
+      }
+
+      function search() {
+        const searchInput = document.getElementById("searchInput").value.trim();
+        if (!searchInput) return;
+
+        fetch("https://imdb-api.com/API/Search/k_j1oyp2ho/${searchInput}")
+          .then((response) => response.json())
+          .then((data) => {
+            console.log(data);
+            const output = document.getElementById("output");
+            output.innerHTML = "";
+            data.results.forEach((result) => {
+              const card = createCard(
+                result.title,
+                result.image,
+                result.description
+              );
+              output.appendChild(card);
+            });
+          })
+          .catch((error) => console.error(error));
+      }
+
+      function fetchAndDisplay(url) {
+        fetch(url)
+          .then((response) => response.json())
+          .then((data) => {
+            console.log(data);
+            const output = document.getElementById("output");
+            output.innerHTML = "";
+            data.items.forEach((item) => {
+              const card = createCard(item.title, item.image, item.description);
+              output.appendChild(card);
+            });
+          })
+          .catch((error) => console.error(error));
+      }
+
+      function displayTop250TVs() {
+        fetchAndDisplay("https://imdb-api.com/API/Top250TVs/k_j1oyp2ho");
+      }
+
+      function displayComingSoon() {
+        fetchAndDisplay("https://imdb-api.com/API/ComingSoon/k_j1oyp2ho");
+      }
+    </script>
+  </body>
+</html>
